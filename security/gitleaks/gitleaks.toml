@@ -1,0 +1,41 @@
+title = "DevSecOps project Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "secwallet-internal-token"
+description = "Detect internal SECWALLET tokens"
+regex = '''SECWALLET_[A-Z0-9]{24}'''
+secretGroup = 0
+entropy = 3.5
+keywords = [
+  "SECWALLET_"
+]
+
+[[rules]]
+id = "generic-env-password"
+description = "Detect password-like values in env files"
+regex = '''(?i)(password|passwd|pwd|secret|token|api_key|apikey)\s*=\s*['"]?[A-Za-z0-9_\-]{12,}['"]?'''
+secretGroup = 0
+entropy = 3.5
+keywords = [
+  "password",
+  "passwd",
+  "secret",
+  "token",
+  "api_key",
+  "apikey"
+]
+
+[allowlist]
+description = "Allow examples and documentation placeholders"
+paths = [
+  '''README\.md''',
+  '''docs/.*'''
+]
+
+regexes = [
+  '''SECWALLET_EXEMPLE_NE_PAS_UTILISER''',
+  '''SECWALLET_FAKE_TOKEN_FOR_TEST_ONLY'''
+]
