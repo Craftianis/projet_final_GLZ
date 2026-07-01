@@ -23,18 +23,18 @@ if echo "$STAGED_FILES" | grep -E "$BLOCKED_FILES_REGEX" >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Security check: checking SECWALLET tokens..."
+echo "Security check: checking SECWALLET tokens in added lines only..."
 
-if git diff --cached | grep -E 'SECWALLET_[A-Z0-9]{24}' >/dev/null 2>&1; then
-  echo "ERROR: SECWALLET token detected in staged changes."
+if git diff --cached -U0 | grep '^+' | grep -v '^+++' | grep -E 'SECWALLET_[A-Z0-9]{24}' >/dev/null 2>&1; then
+  echo "ERROR: SECWALLET token detected in added staged changes."
   echo "Remove the secret before committing."
   exit 1
 fi
 
-echo "Security check: checking common private key markers..."
+echo "Security check: checking common private key markers in added lines only..."
 
-if git diff --cached | grep -E '-----BEGIN (RSA |OPENSSH |EC |DSA |)?PRIVATE KEY-----' >/dev/null 2>&1; then
-  echo "ERROR: private key detected in staged changes."
+if git diff --cached -U0 | grep '^+' | grep -v '^+++' | grep -E '-----BEGIN (RSA |OPENSSH |EC |DSA |)?PRIVATE KEY-----' >/dev/null 2>&1; then
+  echo "ERROR: private key detected in added staged changes."
   echo "Remove the private key before committing."
   exit 1
 fi
