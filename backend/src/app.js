@@ -1,50 +1,46 @@
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const { exec } = require('child_process');
-
-const INTERNAL_TOKEN = ""; 
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/health', (req, res) => {
+// Servir le frontend statique pour les tests E2E
+app.use(express.static(path.join(__dirname, "../../frontend")));
+
+app.get("/api/health", (req, res) => {
   const isDatabaseConfigured = !!process.env.DATABASE_URL;
   const isJwtConfigured = !!process.env.JWT_SECRET;
 
   if (!isDatabaseConfigured || !isJwtConfigured) {
-    return res.status(500).json({ 
-      status: "DOWN", 
-      error: "Configuration de sécurité manquante : variables d'environnement non détectées" 
+    return res.status(500).json({
+      status: "DOWN",
+      error: "Configuration de sécurité manquante : variables d'environnement non détectées",
     });
   }
 
-  res.status(200).json({ 
-    status: "UP", 
-    timestamp: new Date(),
-    vault_status: "CONNECTED_TO_PROD_SECRETS"
+  return res.status(200).json({
+    status: "UP",
+    timestamp: new Date().toISOString(),
+    vault_status: "CONNECTED_TO_PROD_SECRETS",
   });
 });
 
-app.get('/api/debug-ping', (req, res) => {
-  const targetIp = req.query.ip || '127.0.0.1';
+app.get("/api/welcome", (req, res) => {
+  const name = String(req.query.name || "Invité").replace(/[<>]/g, "");
 
-  exec(`ping -c 1 ${targetIp}`, (error, stdout, stderr) => {
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-    res.status(200).json({ output: stdout });
+  return res.status(200).json({
+    message: `Bienvenue ${name}`,
   });
 });
 
-app.get('/api/welcome', (req, res) => {
-  const name = req.query.name || 'Invité';
-  res.send(`<h1>Bienvenue ${name}</h1>`);
-});
-
-if (process.env.NODE_ENV !== 'production' || process.env.DOCKER_RUN === 'true') {
+// Ne démarre le serveur que si le fichier est lancé directement
+// Cela évite les conflits de port pendant les tests Jest/Supertest
+if (require.main === module) {
   const PORT = process.env.PORT || 3000;
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Le serveur écoute activement sur le port ${PORT}`);
   });
