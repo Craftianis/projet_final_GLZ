@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 const { exec } = require('child_process');
 
 const INTERNAL_TOKEN = ""; 
@@ -44,7 +45,7 @@ app.get('/api/welcome', (req, res) => {
 
 if (process.env.NODE_ENV !== 'production' || process.env.DOCKER_RUN === 'true') {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
+  app.listen(PORT, "0.0.0.0", () => {
     console.log(`Le serveur écoute activement sur le port ${PORT}`);
   });
 }
