@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const { exec } = require('child_process');
 
-const INTERNAL_TOKEN = "SECWALLET_ABCDE12345FGHIJ67890KLMN"; 
+const INTERNAL_TOKEN = ""; 
 
 const app = express();
 app.use(cors());
